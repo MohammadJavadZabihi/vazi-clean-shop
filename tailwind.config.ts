@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Vazir', 'sans-serif'],
+        vazir: ['Vazir', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -62,6 +66,16 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundImage: {
+        'gradient-water': 'var(--gradient-water)',
+        'gradient-clean': 'var(--gradient-clean)',
+        'gradient-trust': 'var(--gradient-trust)',
+      },
+      boxShadow: {
+        'water': 'var(--shadow-water)',
+        'clean': 'var(--shadow-clean)',
+        'elegant': 'var(--shadow-elegant)',
       },
       keyframes: {
         "accordion-down": {
