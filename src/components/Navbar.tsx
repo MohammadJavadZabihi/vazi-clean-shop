@@ -60,22 +60,26 @@ const Navbar = ({ cartItems = 0 }: NavbarProps) => {
             </Button>
 
             {/* User Account */}
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-            </Button>
+            <Link to="/profile">
+              <Button variant="ghost" size="icon">
+                <User className="h-5 w-5" />
+              </Button>
+            </Link>
 
             {/* Shopping Cart */}
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              {cartItems > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-2 -left-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
-                >
-                  {cartItems}
-                </Badge>
-              )}
-            </Button>
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cartItems > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-2 -left-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
+                  >
+                    {cartItems}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
 
             {/* Mobile Menu */}
             <Button variant="ghost" size="icon" className="lg:hidden">
