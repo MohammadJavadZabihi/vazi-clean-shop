@@ -44,12 +44,16 @@ const Navbar = ({ cartItems = 0 }: NavbarProps) => {
                 محصولات
               </Button>
             </Link>
-            <Button variant="ghost" className="text-right">
-              درباره ما
-            </Button>
-            <Button variant="ghost" className="text-right">
-              تماس با ما
-            </Button>
+            <Link to="/about">
+              <Button variant="ghost" className="text-right">
+                درباره ما
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button variant="ghost" className="text-right">
+                تماس با ما
+              </Button>
+            </Link>
           </div>
 
           {/* User Actions */}

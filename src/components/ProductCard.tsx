@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Heart, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 
 interface Product {
@@ -32,11 +33,13 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   return (
     <Card className="group overflow-hidden water-ripple hover:shadow-water transition-all duration-300 border-muted">
       <div className="relative">
-        <img 
-          src={product.image} 
-          alt={product.name}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        <Link to={`/product/${product.id}`}>
+          <img 
+            src={product.image} 
+            alt={product.name}
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+          />
+        </Link>
         
         {/* Badges */}
         <div className="absolute top-2 right-2 flex flex-col gap-1">
@@ -82,9 +85,11 @@ const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
         </div>
 
         {/* Product Name */}
-        <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-right">
-          {product.name}
-        </h3>
+        <Link to={`/product/${product.id}`}>
+          <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-right hover:text-primary cursor-pointer transition-colors">
+            {product.name}
+          </h3>
+        </Link>
 
         {/* Features */}
         <div className="flex flex-wrap gap-1 mb-3">
