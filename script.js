@@ -486,7 +486,362 @@ function initializePage() {
     if (newsletterForm) {
         newsletterForm.addEventListener('submit', subscribeNewsletter);
     }
+    
+    // Setup mobile menu
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+    }
+}
+
+// Auth functionality
+function initializeAuth() {
+    // Login form
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        const passwordToggle = document.getElementById('passwordToggle');
+        const passwordInput = document.getElementById('password');
+        
+        // Password visibility toggle
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                
+                const icon = passwordToggle.querySelector('svg');
+                if (type === 'text') {
+                    icon.innerHTML = `
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m3.878-3.878L21 21m-6.122-6.122L12 12m0-8c-4.478 0-8.268 2.943-9.542 7a10.025 10.025 0 002.699 5.699M12 4c1.36 0 2.678.227 3.878.665"/>
+                    `;
+                } else {
+                    icon.innerHTML = `
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    `;
+                }
+            });
+        }
+        
+        // Login form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            if (validateLoginForm(email, password)) {
+                handleLogin(email, password, rememberMe);
+            }
+        });
+    }
+    
+    // Register form
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
+        
+        // Password visibility toggles
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', function() {
+                togglePasswordVisibility(passwordInput, passwordToggle);
+            });
+        }
+        
+        if (confirmPasswordToggle && confirmPasswordInput) {
+            confirmPasswordToggle.addEventListener('click', function() {
+                togglePasswordVisibility(confirmPasswordInput, confirmPasswordToggle);
+            });
+        }
+        
+        // Password strength indicator
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                updatePasswordStrength(passwordInput.value);
+            });
+        }
+        
+        // Confirm password matching
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', function() {
+                validatePasswordMatch();
+            });
+        }
+        
+        // Register form submission
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value,
+                agreeTerms: document.getElementById('agreeTerms').checked,
+                newsletter: document.getElementById('newsletter').checked
+            };
+            
+            if (validateRegisterForm(formData)) {
+                handleRegister(formData);
+            }
+        });
+    }
+}
+
+function togglePasswordVisibility(input, toggle) {
+    const type = input.type === 'password' ? 'text' : 'password';
+    input.type = type;
+    
+    const icon = toggle.querySelector('svg');
+    if (type === 'text') {
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m3.878-3.878L21 21m-6.122-6.122L12 12m0-8c-4.478 0-8.268 2.943-9.542 7a10.025 10.025 0 002.699 5.699M12 4c1.36 0 2.678.227 3.878.665"/>
+        `;
+    } else {
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+        `;
+    }
+}
+
+function updatePasswordStrength(password) {
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthText = document.getElementById('strengthText');
+    
+    if (!strengthFill || !strengthText) return;
+    
+    const strength = calculatePasswordStrength(password);
+    
+    strengthFill.className = 'strength-fill';
+    
+    if (password.length === 0) {
+        strengthText.textContent = 'رمز عبور خود را وارد کنید';
+        return;
+    }
+    
+    if (strength < 3) {
+        strengthFill.classList.add('weak');
+        strengthText.textContent = 'رمز عبور ضعیف';
+    } else if (strength < 4) {
+        strengthFill.classList.add('medium');
+        strengthText.textContent = 'رمز عبور متوسط';
+    } else {
+        strengthFill.classList.add('strong');
+        strengthText.textContent = 'رمز عبور قوی';
+    }
+}
+
+function calculatePasswordStrength(password) {
+    let strength = 0;
+    
+    // Length check
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    
+    // Character variety checks
+    if (/[a-z]/.test(password)) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    
+    return Math.min(strength, 5);
+}
+
+function validatePasswordMatch() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
+    
+    if (confirmPassword && password !== confirmPassword) {
+        confirmPasswordError.textContent = 'رمز عبور و تأیید آن مطابقت ندارند';
+        return false;
+    } else {
+        confirmPasswordError.textContent = '';
+        return true;
+    }
+}
+
+function validateLoginForm(email, password) {
+    let isValid = true;
+    
+    // Email validation
+    const emailError = document.getElementById('emailError');
+    if (!email) {
+        emailError.textContent = 'ایمیل الزامی است';
+        isValid = false;
+    } else if (!isValidEmail(email)) {
+        emailError.textContent = 'فرمت ایمیل صحیح نیست';
+        isValid = false;
+    } else {
+        emailError.textContent = '';
+    }
+    
+    // Password validation
+    const passwordError = document.getElementById('passwordError');
+    if (!password) {
+        passwordError.textContent = 'رمز عبور الزامی است';
+        isValid = false;
+    } else {
+        passwordError.textContent = '';
+    }
+    
+    return isValid;
+}
+
+function validateRegisterForm(formData) {
+    let isValid = true;
+    
+    // First name validation
+    const firstNameError = document.getElementById('firstNameError');
+    if (!formData.firstName.trim()) {
+        firstNameError.textContent = 'نام الزامی است';
+        isValid = false;
+    } else {
+        firstNameError.textContent = '';
+    }
+    
+    // Last name validation
+    const lastNameError = document.getElementById('lastNameError');
+    if (!formData.lastName.trim()) {
+        lastNameError.textContent = 'نام خانوادگی الزامی است';
+        isValid = false;
+    } else {
+        lastNameError.textContent = '';
+    }
+    
+    // Email validation
+    const emailError = document.getElementById('emailError');
+    if (!formData.email) {
+        emailError.textContent = 'ایمیل الزامی است';
+        isValid = false;
+    } else if (!isValidEmail(formData.email)) {
+        emailError.textContent = 'فرمت ایمیل صحیح نیست';
+        isValid = false;
+    } else {
+        emailError.textContent = '';
+    }
+    
+    // Phone validation
+    const phoneError = document.getElementById('phoneError');
+    if (!formData.phone) {
+        phoneError.textContent = 'شماره تلفن الزامی است';
+        isValid = false;
+    } else if (!isValidPhone(formData.phone)) {
+        phoneError.textContent = 'شماره تلفن صحیح نیست';
+        isValid = false;
+    } else {
+        phoneError.textContent = '';
+    }
+    
+    // Password validation
+    const passwordError = document.getElementById('passwordError');
+    if (!formData.password) {
+        passwordError.textContent = 'رمز عبور الزامی است';
+        isValid = false;
+    } else if (formData.password.length < 8) {
+        passwordError.textContent = 'رمز عبور باید حداقل ۸ کاراکتر باشد';
+        isValid = false;
+    } else {
+        passwordError.textContent = '';
+    }
+    
+    // Confirm password validation
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
+    if (formData.password !== formData.confirmPassword) {
+        confirmPasswordError.textContent = 'رمز عبور و تأیید آن مطابقت ندارند';
+        isValid = false;
+    } else {
+        confirmPasswordError.textContent = '';
+    }
+    
+    // Terms agreement validation
+    if (!formData.agreeTerms) {
+        alert('برای ثبت نام باید با شرایط و قوانین موافقت کنید');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function isValidPhone(phone) {
+    const phoneRegex = /^09[0-9]{9}$/;
+    return phoneRegex.test(phone);
+}
+
+function handleLogin(email, password, rememberMe) {
+    const loginBtn = document.getElementById('loginBtn');
+    const loginLoading = document.getElementById('loginLoading');
+    
+    // Show loading state
+    loginBtn.classList.add('loading');
+    
+    // Simulate API call
+    setTimeout(() => {
+        // Store user data (in real app, this would come from server)
+        const userData = {
+            email: email,
+            name: 'کاربر محترم',
+            loginTime: new Date().toISOString()
+        };
+        
+        if (rememberMe) {
+            localStorage.setItem('userData', JSON.stringify(userData));
+        } else {
+            sessionStorage.setItem('userData', JSON.stringify(userData));
+        }
+        
+        // Show success message
+        showNotification('ورود با موفقیت انجام شد!');
+        
+        // Redirect to home page
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1500);
+    }, 2000);
+}
+
+function handleRegister(formData) {
+    const registerBtn = document.getElementById('registerBtn');
+    
+    // Show loading state
+    registerBtn.classList.add('loading');
+    
+    // Simulate API call
+    setTimeout(() => {
+        // Store user data (in real app, this would come from server)
+        const userData = {
+            email: formData.email,
+            name: `${formData.firstName} ${formData.lastName}`,
+            phone: formData.phone,
+            newsletter: formData.newsletter,
+            registerTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem('userData', JSON.stringify(userData));
+        
+        // Show success message
+        showNotification('ثبت نام با موفقیت انجام شد!');
+        
+        // Redirect to home page
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1500);
+    }, 2000);
 }
 
 // Run when DOM is loaded
-document.addEventListener('DOMContentLoaded', initializePage);
+document.addEventListener('DOMContentLoaded', function() {
+    initializePage();
+    initializeAuth();
+});
